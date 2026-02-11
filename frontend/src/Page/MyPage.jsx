@@ -6,6 +6,9 @@ const MyPage = () => {
   const [profile, setProfile] = useState({ name: '', email: '' });
   const [applications, setApplications] = useState([]);
   const [appError, setAppError] = useState('');
+  const [cancelTarget, setCancelTarget] = useState(null);
+  const [cancelReason, setCancelReason] = useState('단순 변심');
+  const [cancelCustom, setCancelCustom] = useState('');
   const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000';
 
   useEffect(() => {
@@ -53,9 +56,9 @@ const MyPage = () => {
     loadApplications();
   }, [API_BASE]);
 
-  const handleCancel = async (row) => {
-    const reason = window.prompt('취소 사유를 입력해주세요. (선택)');
-    if (reason === null) return;
+  const handleCancel = async () => {
+    if (!cancelTarget) return;
+    const reason = cancelReason === '직접 입력' ? cancelCustom.trim() : cancelReason;
     const ok = window.confirm('해당 강습을 취소하겠습니까?');
     if (!ok) return;
     const { data } = await supabase.auth.getSession();
@@ -64,7 +67,7 @@ const MyPage = () => {
       window.alert('로그인이 필요합니다.');
       return;
     }
-    const res = await fetch(`${API_BASE}/api/applications/${row.id}/cancel`, {
+    const res = await fetch(`${API_BASE}/api/applications/${cancelTarget.id}/cancel`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -77,7 +80,9 @@ const MyPage = () => {
       window.alert(dataJson.error || '취소에 실패했습니다.');
       return;
     }
-    setApplications((prev) => prev.filter((item) => item.id !== row.id));
+    setApplications((prev) => prev.filter((item) => item.id !== cancelTarget.id));
+    setCancelTarget(null);
+    setCancelCustom('');
     window.alert('취소되었습니다.');
   };
 
@@ -156,7 +161,11 @@ const MyPage = () => {
                     <button
                       type="button"
                       className="text-xs text-red-600 hover:underline"
-                      onClick={() => handleCancel(item)}
+                      onClick={() => {
+                        setCancelTarget(item);
+                        setCancelReason('단순 변심');
+                        setCancelCustom('');
+                      }}
                     >
                       신청 취소
                     </button>
@@ -167,6 +176,53 @@ const MyPage = () => {
           </div>
         </div>
       </div>
+      {cancelTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-sm rounded-xl bg-white p-6 shadow-lg">
+            <div className="text-lg font-semibold text-gray-900">취소 사유</div>
+            <p className="mt-1 text-xs text-gray-500">
+              {cancelTarget.sections?.sport} · {cancelTarget.sections?.title}
+            </p>
+            <div className="mt-4 space-y-3 text-sm text-gray-700">
+              {['단순 변심', '일정 변경', '결제 오류', '직접 입력'].map((option) => (
+                <label key={option} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    name="cancel-reason"
+                    value={option}
+                    checked={cancelReason === option}
+                    onChange={(e) => setCancelReason(e.target.value)}
+                  />
+                  {option}
+                </label>
+              ))}
+              {cancelReason === '직접 입력' && (
+                <textarea
+                  className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  rows={3}
+                  placeholder="취소 사유를 입력해주세요."
+                  value={cancelCustom}
+                  onChange={(e) => setCancelCustom(e.target.value)}
+                />
+              )}
+            </div>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                className="h-9 px-4 rounded-md border border-gray-200 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => setCancelTarget(null)}
+              >
+                닫기
+              </button>
+              <button
+                className="h-9 px-4 rounded-md bg-red-600 text-sm text-white hover:bg-red-700"
+                onClick={handleCancel}
+              >
+                취소하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

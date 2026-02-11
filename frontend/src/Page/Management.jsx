@@ -59,6 +59,7 @@ const Management = () => {
   const [appError, setAppError] = useState('');
   const [sectionFilter, setSectionFilter] = useState('');
   const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [sections, setSections] = useState([]);
   const [sectionForm, setSectionForm] = useState({
     sport: '',
@@ -187,12 +188,13 @@ const Management = () => {
       const params = new URLSearchParams();
       if (sectionFilter) params.set('section_id', sectionFilter);
       if (query) params.set('q', query);
+      if (statusFilter !== 'all') params.set('status', statusFilter);
       const res = await fetch(`${API_BASE}/api/applications?${params.toString()}`, {
         headers: { Authorization: `Bearer ${await getAuthToken()}` }
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to load applications');
-      setApplications(data);
+      setApplications(Array.isArray(data) ? data : []);
     } catch (err) {
       setAppError(err.message);
     } finally {
@@ -203,7 +205,7 @@ const Management = () => {
   useEffect(() => {
     if (activeTab !== 'applications' && activeTab !== 'dashboard') return;
     loadApplications();
-  }, [API_BASE, activeTab, sectionFilter, query]);
+  }, [API_BASE, activeTab, sectionFilter, query, statusFilter]);
 
   const loadPopups = async () => {
     setPopupsLoading(true);
@@ -255,7 +257,7 @@ const Management = () => {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || '삭제에 실패했습니다.');
-      setApplications((prev) => prev.map((item) => (item.id === row.id ? data : item)));
+      setApplications((prev) => prev.filter((item) => item.id !== row.id));
       await loadApplications();
       await reloadSections();
     } catch (err) {
@@ -529,12 +531,14 @@ const Management = () => {
                       >
                         상세
                       </button>
-                      <button
-                        className="h-9 px-4 whitespace-nowrap rounded-md border border-red-200 text-red-600 hover:bg-red-50"
-                        onClick={() => handleApplicationDelete(row)}
-                      >
-                        삭제
-                      </button>
+                      {row.status !== 'CANCELLED' && (
+                        <button
+                          className="h-9 px-4 whitespace-nowrap rounded-md border border-red-200 text-red-600 hover:bg-red-50"
+                          onClick={() => handleApplicationDelete(row)}
+                        >
+                          삭제
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -714,7 +718,7 @@ const Management = () => {
             <input
               type="date"
               className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={sectionForm.apply_start_at}
+              value={sectionForm.apply_start_at ?? ''}
               onChange={(e) => setSectionForm((s) => ({ ...s, apply_start_at: e.target.value }))}
             />
           </div>
@@ -724,7 +728,7 @@ const Management = () => {
             <input
               type="date"
               className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={sectionForm.apply_end_at}
+              value={sectionForm.apply_end_at ?? ''}
               onChange={(e) => setSectionForm((s) => ({ ...s, apply_end_at: e.target.value }))}
             />
           </div>
@@ -735,7 +739,7 @@ const Management = () => {
               type="number"
               className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="정원"
-              value={sectionForm.capacity}
+              value={sectionForm.capacity ?? ''}
               onChange={(e) => setSectionForm((s) => ({ ...s, capacity: e.target.value }))}
             />
           </div>
@@ -746,7 +750,7 @@ const Management = () => {
               type="number"
               className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="잔여 (비우면 정원)"
-              value={sectionForm.remaining}
+              value={sectionForm.remaining ?? ''}
               onChange={(e) => setSectionForm((s) => ({ ...s, remaining: e.target.value }))}
             />
           </div>
@@ -755,7 +759,7 @@ const Management = () => {
             <label className="text-xs font-medium text-gray-600">상태</label>
             <select
               className="h-10 w-full rounded-md border border-gray-200 px-3 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              value={sectionForm.status}
+              value={sectionForm.status ?? '모집중'}
               onChange={(e) => setSectionForm((s) => ({ ...s, status: e.target.value }))}
             >
               <option value="모집중">모집중</option>
@@ -995,11 +999,14 @@ const Management = () => {
               </option>
             ))}
           </select>
-          <select className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-            <option>상태 선택</option>
-            <option>APPLIED</option>
-            <option>CONFIRMED</option>
-            <option>CANCELLED</option>
+          <select
+            className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="all">전체보기</option>
+            <option value="APPLIED">신청됨</option>
+            <option value="CANCELLED">취소됨</option>
           </select>
           <input
             className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
@@ -1025,6 +1032,7 @@ const Management = () => {
             onClick={() => {
               setSectionFilter('');
               setQuery('');
+              setStatusFilter('all');
             }}
           >
             초기화
@@ -1108,12 +1116,14 @@ const Management = () => {
                     >
                       상세
                     </button>
-                    <button
-                      className="h-9 px-4 whitespace-nowrap rounded-md border border-red-200 text-red-600 hover:bg-red-50"
-                      onClick={() => handleApplicationDelete(row)}
-                    >
-                      삭제
-                    </button>
+                    {row.status !== 'CANCELLED' && (
+                      <button
+                        className="h-9 px-4 whitespace-nowrap rounded-md border border-red-200 text-red-600 hover:bg-red-50"
+                        onClick={() => handleApplicationDelete(row)}
+                      >
+                        삭제
+                      </button>
+                    )}
                   </div>
                 </td>
                 </tr>

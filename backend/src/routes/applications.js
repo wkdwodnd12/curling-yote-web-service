@@ -24,13 +24,14 @@ router.get('/me', requireAuth, async (req, res) => {
 router.get('/', adminAuth, async (req, res) => {
   if (!supabase) return res.status(500).json({ error: 'Supabase not configured' });
 
-  const { section_id, q } = req.query;
+  const { section_id, q, status } = req.query;
   let query = supabase
     .from('applications')
     .select('id, section_id, user_id, name, phone, participants, request_note, memo, status, cancel_reason, cancelled_at, created_at, sections(sport, title, apply_start_at, apply_end_at, status)')
     .order('created_at', { ascending: false });
 
   if (section_id) query = query.eq('section_id', section_id);
+  if (status) query = query.eq('status', status);
   if (q) query = query.or(`name.ilike.%${q}%,phone.ilike.%${q}%`);
 
   const { data, error } = await query;
@@ -75,6 +76,7 @@ router.post('/', requireAuth, async (req, res) => {
     .select('id')
     .eq('user_id', req.profile.id)
     .eq('section_id', section_id)
+    .eq('status', 'APPLIED')
     .maybeSingle();
   if (duplicate) return res.status(409).json({ error: 'Already applied' });
 

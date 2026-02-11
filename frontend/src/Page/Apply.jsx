@@ -10,7 +10,6 @@ const Apply = () => {
   const [selectedSessionId, setSelectedSessionId] = useState('');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [participants, setParticipants] = useState('1');
   const [requestNote, setRequestNote] = useState('');
   const [memo, setMemo] = useState('');
   const navigate = useNavigate();
@@ -72,7 +71,7 @@ const Apply = () => {
           section_id: Number(selectedSessionId),
           name,
           phone,
-          participants: participants ? Number(participants) : null,
+          participants: null,
           request_note: requestNote || null,
           memo: memo || null
         })
@@ -104,7 +103,6 @@ const Apply = () => {
       }
       setName('');
       setPhone('');
-      setParticipants('1');
       setRequestNote('');
       setMemo('');
       window.alert('신청이 완료되었습니다.');
@@ -195,26 +193,14 @@ const Apply = () => {
 
         <section className="rounded-xl border border-gray-200 bg-white shadow-sm p-6 space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">추가 정보</h2>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <label className="block text-sm text-gray-700">참가 인원</label>
-              <input
-                type="number"
-                min="1"
-                value={participants}
-                onChange={(e) => setParticipants(e.target.value)}
-                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-700">요청 사항</label>
-              <input
-                value={requestNote}
-                onChange={(e) => setRequestNote(e.target.value)}
-                className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="예: 장비 대여"
-              />
-            </div>
+          <div>
+            <label className="block text-sm text-gray-700">요청 사항</label>
+            <input
+              value={requestNote}
+              onChange={(e) => setRequestNote(e.target.value)}
+              className="w-full rounded-md border border-gray-200 px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="예: 장비 대여"
+            />
           </div>
           <div>
             <label className="block text-sm text-gray-700">메모</label>
