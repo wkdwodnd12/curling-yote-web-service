@@ -39,7 +39,7 @@ const Login = () => {
         }
       }
       setError('');
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -81,11 +81,11 @@ const Login = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gradient-to-br from-sky-500 via-blue-600 to-blue-800 relative">
-      <Link to="/" className="absolute top-6 left-6 text-sm font-medium text-white hover:underline">
+      <Link to="/home" className="absolute top-6 left-6 text-sm font-medium text-white hover:underline">
         ← 홈으로
       </Link>
       <div className="w-full max-w-sm flex items-center justify-center text-white">
-        <Link to="/" className="text-2xl font-black drop-shadow-lg">
+        <Link to="/home" className="text-2xl font-black drop-shadow-lg">
           Wev Site
         </Link>
       </div>

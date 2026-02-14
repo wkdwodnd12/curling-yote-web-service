@@ -69,7 +69,7 @@ export default function LandingPage() {
     localStorage.removeItem('isAdmin');
     setIsLoggedIn(false);
     window.alert('로그아웃되었습니다.');
-    window.location.href = '/';
+    window.location.href = '/home';
   };
 
   useEffect(() => {
@@ -130,9 +130,12 @@ export default function LandingPage() {
           <button className="px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">
             수강신청
           </button>
-          <button className="px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">
+          <Link
+            to="/schedule"
+            className="px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition"
+          >
             전체 일정
-          </button>
+          </Link>
           <button className="px-4 py-2.5 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/20 transition">
             이용안내
           </button>

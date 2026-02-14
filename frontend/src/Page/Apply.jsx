@@ -106,7 +106,7 @@ const Apply = () => {
       setRequestNote('');
       setMemo('');
       window.alert('신청이 완료되었습니다.');
-      navigate('/');
+      navigate('/home');
     } catch (err) {
       setError(err.message);
     }

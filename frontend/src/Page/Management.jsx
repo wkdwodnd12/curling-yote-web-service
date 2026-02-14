@@ -1328,7 +1328,7 @@ const Management = () => {
                   key={item.key}
                   onClick={() => {
                     if (item.key === 'home') {
-                      navigate('/');
+                      navigate('/home');
                       return;
                     }
                     if (item.key === 'logout') {

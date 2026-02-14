@@ -90,7 +90,7 @@ const MyPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-sky-500 via-blue-600 to-blue-800">
       <div className="mx-auto max-w-5xl px-4 py-10 space-y-8">
         <div className="flex items-center justify-between text-white">
-          <Link to="/" className="text-sm font-medium text-white/90 hover:underline">
+          <Link to="/home" className="text-sm font-medium text-white/90 hover:underline">
             ← 홈으로
           </Link>
           <div className="text-lg font-semibold">마이페이지</div>

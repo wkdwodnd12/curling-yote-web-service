@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import App from './App';
+import Intro from './Page/Intro';
 import Login from './Page/Login';
 import SignUp from './Page/SignUp';
 import Management from './Page/Management';
 import Apply from './Page/Apply';
 import MyPage from './Page/MyPage';
+import Schedule from './Page/Schedule';
 import './index.css';
 import { supabase } from './lib/supabaseClient';
 
@@ -44,7 +46,8 @@ ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<App />} />
+        <Route path="/" element={<Intro />} />
+        <Route path="/home" element={<App />} />
         <Route path="/login" element={<Login />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/MyPage" element={<MyPage />} />
@@ -58,6 +61,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           }
         />
         <Route path="/apply" element={<Apply />} />
+        <Route path="/schedule" element={<Schedule />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>
