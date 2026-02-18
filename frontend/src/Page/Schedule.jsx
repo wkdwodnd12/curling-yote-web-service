@@ -23,7 +23,7 @@ const Schedule = () => {
         <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-center relative">
           <Link to="/home" className="absolute left-6 top-1/2 -translate-y-1/2">
             <div className="text-sm font-semibold text-blue-700 hover:text-blue-800">
-              Wev Service
+              강릉 해양스포츠 팜
             </div>
           </Link>
           <div className="text-sm text-gray-500 max-w-[55%] text-center">

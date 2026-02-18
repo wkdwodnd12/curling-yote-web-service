@@ -43,6 +43,14 @@ const Apply = () => {
     return sections.filter((s) => s.sport === typeFilter);
   }, [sections, typeFilter]);
 
+  useEffect(() => {
+    if (!filteredSections.length) return;
+    const exists = filteredSections.some((s) => String(s.id) === String(selectedSessionId));
+    if (!exists) {
+      setSelectedSessionId(String(filteredSections[0].id));
+    }
+  }, [filteredSections, selectedSessionId]);
+
   const selectedSection = useMemo(
     () => sections.find((s) => String(s.id) === String(selectedSessionId)),
     [sections, selectedSessionId]

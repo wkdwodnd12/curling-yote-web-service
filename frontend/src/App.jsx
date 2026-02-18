@@ -121,7 +121,7 @@ export default function LandingPage() {
       {/* Header */}
       <header className="max-w-7xl mx-auto px-6 py-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 md:gap-8 text-white bg-white/10 backdrop-blur border border-white/20 rounded-full shadow-lg shadow-blue-900/20">
         <div className="text-center md:text-left">
-          <div className="text-xl font-bold">Wev Service</div>
+          <div className="text-xl font-bold">강릉 해양스포츠 팜</div>
           {isLoggedIn && userName && (
             <div className="mt-1 text-xs text-white/80">{userName}님 반갑습니다</div>
           )}
