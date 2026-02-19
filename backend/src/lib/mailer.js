@@ -1,8 +1,9 @@
 const { Resend } = require('resend');
 
 const RESEND_API_KEY = process.env.RESEND_API_KEY;
-const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL;
+const ADMIN_NOTIFY_EMAIL = process.env.ADMIN_NOTIFY_EMAIL || '';
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev';
+const REPLY_TO_EMAIL = process.env.RESEND_REPLY_TO_EMAIL || '';
 
 const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
@@ -13,11 +14,12 @@ const formatDate = (value) => {
   return date.toLocaleString('ko-KR');
 };
 
-const buildBody = ({ application, section }) => {
+const buildBody = ({ application, section, applicantEmail }) => {
   return [
     `강습 신청 접수 알림`,
     ``,
     `신청자: ${application.name || ''}`,
+    `신청자 이메일: ${applicantEmail || ''}`,
     `전화번호: ${application.phone || ''}`,
     `종목: ${section?.sport || ''}`,
     `회차명: ${section?.title || ''}`,
@@ -30,22 +32,29 @@ const buildBody = ({ application, section }) => {
   ].join('\n');
 };
 
-const sendAdminNotification = async ({ application, section }) => {
-  if (!resend || !ADMIN_NOTIFY_EMAIL) {
+const sendAdminNotification = async ({ application, section, applicantEmail = '' }) => {
+  const recipients = ADMIN_NOTIFY_EMAIL.split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  if (!resend || recipients.length === 0) {
     console.warn('[mailer] skipped: missing RESEND_API_KEY or ADMIN_NOTIFY_EMAIL');
     return { ok: false, skipped: true, reason: 'missing resend or admin email' };
   }
 
   const subject = `강습 신청 접수 알림 - ${section?.sport || '강습'}`;
-  const text = buildBody({ application, section });
+  const text = buildBody({ application, section, applicantEmail });
 
-  console.log('[mailer] sending to', ADMIN_NOTIFY_EMAIL, 'from', FROM_EMAIL);
-  const { error } = await resend.emails.send({
+  const payload = {
     from: FROM_EMAIL,
-    to: ADMIN_NOTIFY_EMAIL,
+    to: recipients,
     subject,
     text
-  });
+  };
+  if (REPLY_TO_EMAIL) payload.replyTo = REPLY_TO_EMAIL;
+
+  console.log('[mailer] sending to', recipients.join(','), 'from', FROM_EMAIL);
+  const { error } = await resend.emails.send(payload);
 
   if (error) {
     console.error('[mailer] send error', error);

@@ -55,7 +55,7 @@ router.post('/', requireAuth, async (req, res) => {
 
   const { data: section, error: sectionError } = await supabase
     .from('sections')
-    .select('id, sport, status, apply_start_at, apply_end_at')
+    .select('id, sport, title, status, apply_start_at, apply_end_at')
     .eq('id', section_id)
     .single();
   if (sectionError || !section) return res.status(404).json({ error: 'Section not found' });
@@ -102,7 +102,11 @@ router.post('/', requireAuth, async (req, res) => {
   }
 
   try {
-    await sendAdminNotification({ application: inserted, section });
+    await sendAdminNotification({
+      application: inserted,
+      section,
+      applicantEmail: req.profile?.email || ''
+    });
   } catch (err) {
     console.error('[applications:notify] error', err);
   }
